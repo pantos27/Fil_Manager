@@ -5,6 +5,10 @@ package com.pantos27.www.filemanager;
  */
 public class FullFolder extends AbsFile {
 
+    public FullFolder(String path) {
+        super(path);
+    }
+
     @Override
     public int getDrawbableID() {
         return R.drawable.folder_full;

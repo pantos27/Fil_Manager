@@ -1,22 +1,18 @@
 package com.pantos27.www.filemanager;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * helper fragment to handel permission requests
  * the containing activity must implement PermissionCallback
+ * can pass one or more permission to check for the required activity, through the fragment arguments
  */
 public class PermissionManagerFragment extends Fragment{
 
@@ -71,7 +67,8 @@ public class PermissionManagerFragment extends Fragment{
         if (toRequest.size()>0)
         {
             //missing permissions
-
+            Log.d(TAG, "checkPermissions: request permissions "+toRequest.toString());
+            requestPermissions((String[]) toRequest.toArray(),this.getArguments().hashCode());
         }
         else
         {
@@ -80,6 +77,23 @@ public class PermissionManagerFragment extends Fragment{
         }
 
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        if (requestCode==getArguments().hashCode()){
+            for (int result : grantResults) {
+                if (result==PackageManager.PERMISSION_DENIED)
+                {
+                    callback.onPermissionDenied();
+                    return;
+                }
+            }
+            callback.onPermissionGranted();
+        }
+        else
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
 

@@ -5,6 +5,10 @@ package com.pantos27.www.filemanager;
  */
 public class FileItem extends AbsFile {
 
+    public FileItem(String path) {
+        super(path);
+    }
+
     @Override
     public int getDrawbableID() {
         return R.drawable.file;

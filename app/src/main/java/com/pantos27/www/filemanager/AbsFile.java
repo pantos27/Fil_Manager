@@ -1,6 +1,7 @@
 package com.pantos27.www.filemanager;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 
@@ -10,7 +11,6 @@ import java.io.File;
 public abstract class AbsFile extends File {
 
     Drawable icon;
-    String name;
 
     public AbsFile(String path) {
         super(path);
@@ -19,4 +19,7 @@ public abstract class AbsFile extends File {
     public int getDrawbableID(){
         return -1;
     }
+
+
+
 }
