@@ -10,6 +10,10 @@ import android.support.
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * helper fragment to handel permission requests
  * the containing activity must implement PermissionCallback
@@ -57,7 +61,25 @@ public class PermissionManagerFragment extends Fragment{
     }
 
     public void checkPermissions(){
-        if (permissions!=null && ContextCompat.checkSelfPermission(getContext(),permissions)==)
+        //check all the missing permissions
+        ArrayList<String> toRequest=new ArrayList<>();
+        for (String permission : permissions) {
+            if (permissions!=null && ContextCompat.checkSelfPermission(getContext(),permission)==PackageManager.PERMISSION_DENIED)
+                toRequest.add(permission);
+        }
+
+        if (toRequest.size()>0)
+        {
+            //missing permissions
+
+        }
+        else
+        {
+            //all good
+            callback.onPermissionGranted();
+        }
+
+
     }
 }
 

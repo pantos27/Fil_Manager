@@ -40,6 +40,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     @Override
     public void onPermissionDenied() {
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        builder.create().setT
+
     }
 }
