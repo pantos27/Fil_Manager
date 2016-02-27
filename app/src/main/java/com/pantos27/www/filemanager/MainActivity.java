@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -66,6 +67,28 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                 {
                     Toast.makeText(MainActivity.this, "open file "+file.getName(), Toast.LENGTH_SHORT).show();
                     // TODO: 27/02/2016 open file
+//                    MimeTypeMap myMime = MimeTypeMap.getSingleton();
+//                    Intent newIntent = new Intent(Intent.ACTION_VIEW);
+//                    String mimeType = myMime.getMimeTypeFromExtension(fileExt(getFile()).substring(1));
+//                    newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
+//                    newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    try {
+//                        context.startActivity(newIntent);
+//                    } catch (ActivityNotFoundException e) {
+//                        Toast.makeText(context, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+//                    }
+//
+//                    File file = new File("EXAMPLE.JPG");
+//
+//// Just example, you should parse file name for extension
+//                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(".JPG");
+//
+//                    Intent intent = new Intent();
+//                    intent.setAction(android.content.Intent.ACTION_VIEW);
+//                    intent.setDataAndType(Uri.fromFile(file), mime);
+//                    startActivityForResult(intent, 10);
+
+
                 }
             }
         });
