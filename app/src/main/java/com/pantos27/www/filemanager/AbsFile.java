@@ -8,12 +8,18 @@ import java.io.File;
 /**
  * Created by Veierovioum on 22/02/2016.
  */
-public abstract class AbsFile extends File {
+public abstract class AbsFile {
 
     Drawable icon;
+    File file;
 
     public AbsFile(String path) {
-        super(path);
+
+        this.file=new File(path);
+    }
+
+    public AbsFile(File file) {
+        this.file=file;
     }
 
     public int getDrawbableID(){

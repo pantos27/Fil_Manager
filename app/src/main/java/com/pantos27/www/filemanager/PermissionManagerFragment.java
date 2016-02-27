@@ -1,6 +1,8 @@
 package com.pantos27.www.filemanager;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,7 +18,7 @@ import java.util.ArrayList;
  */
 public class PermissionManagerFragment extends Fragment{
 
-    private static final String TAG = "FilesManager";
+    private static final String TAG = FileManagerApplication.TAG+"P.M.Frag";
     public static final String KEY_PERMISSIONS = "permissions-key";
     private String[] permissions;
 
@@ -37,8 +39,8 @@ public class PermissionManagerFragment extends Fragment{
 
     @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "onAttach: ");
         super.onAttach(context);
-
         if (context instanceof PermissionCallback){
             callback=(PermissionCallback) context;
             permissions=getArguments().getStringArray(KEY_PERMISSIONS);

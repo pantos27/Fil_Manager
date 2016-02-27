@@ -1,12 +1,15 @@
 package com.pantos27.www.filemanager;
 
+import java.io.File;
+
 /**
  * Created by Veierovioum on 22/02/2016.
  */
 public class FullFolder extends AbsFile {
 
-    public FullFolder(String path) {
-        super(path);
+
+    public FullFolder(File file) {
+        super(file);
     }
 
     @Override
