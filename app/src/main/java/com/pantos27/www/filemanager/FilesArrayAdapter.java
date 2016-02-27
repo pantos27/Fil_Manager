@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Veierovioum on 26/02/2016.
  */
-public class FilesArrayAdapter extends ArrayAdapter<AbsFile> implements View.OnClickListener {
+public class FilesArrayAdapter extends ArrayAdapter<AbsFile> {
 
     private static final String TAG = FileManagerApplication.TAG + "F.A.Adapter";
 
@@ -40,22 +40,16 @@ public class FilesArrayAdapter extends ArrayAdapter<AbsFile> implements View.OnC
             vh.txtFileName= (TextView) convertView.findViewById(R.id.txtFileName);
             convertView.setTag(vh);
 
-            convertView.setOnClickListener(this);
 
         }
 
         ViewHolder vh= (ViewHolder) convertView.getTag();
-        Log.d(TAG, "getView: "+getItem(position).file.getName());
         vh.txtFileName.setText(getItem(position).file.getName());
         vh.fileIcon.setImageResource(getItem(position).getDrawbableID());
 
         return convertView;
     }
 
-    @Override
-    public void onClick(View v) {
-        Toast.makeText(getContext(), "", Toast.LENGTH_SHORT).show();
-    }
 
     private class ViewHolder{
         TextView txtFileName;

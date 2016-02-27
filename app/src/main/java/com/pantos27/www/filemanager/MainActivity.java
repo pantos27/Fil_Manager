@@ -1,27 +1,32 @@
 package com.pantos27.www.filemanager;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Stack;
 
 
 public class MainActivity extends AppCompatActivity implements PermissionManagerFragment.PermissionCallback {
 
     private static final String TAG = FileManagerApplication.TAG+"MainAct";
+    private static final String KEY_BACKSTACK = "backstack key";
     ListView listView;
     FilesArrayAdapter adapter;
     private FilesArray absFilesArray;
     private String permissionFragmentTag="";
-    Stack<File> backStack;
+    Stack<String> backStack;
     PermissionManagerFragment writePermissionFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +34,13 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState != null) {
-            // TODO: 27/02/2016 get state
+            String[] sArray=savedInstanceState.getStringArray(KEY_BACKSTACK);
+            backStack=new Stack<String>();
+            Collections.addAll(backStack, sArray);
+        }
+        else
+        {
+            backStack=new Stack<>();
         }
 
         writePermissionFragment= (PermissionManagerFragment) getSupportFragmentManager().findFragmentByTag(permissionFragmentTag);
@@ -39,6 +50,34 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         }
 
         listView= (ListView) findViewById(R.id.listView);
+        absFilesArray=new FilesArray();
+        adapter=new FilesArrayAdapter(this,R.layout.files_list_item,absFilesArray);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                File file=adapter.getItem(position).file;
+
+                if (file.isDirectory()){
+                    populateFilesList(file);
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this, "open file "+file.getName(), Toast.LENGTH_SHORT).show();
+                    // TODO: 27/02/2016 open file
+                }
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // TODO: 27/02/2016 show info
+                Intent intent=new Intent();
+                return false;
+            }
+        });
 
         Log.d(TAG, "onCreate: end");
     }
@@ -65,17 +104,16 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-
-        Log.d(TAG, "onResume: checking for permission");
+        //if back from state change, resume @ last folder
+        if (!backStack.empty())
+            populateFilesList(new File(backStack.pop()));
+        else
         writePermissionFragment.checkPermissions();
     }
 
     @Override
     public void onPermissionGranted() {
         Log.d(TAG, "onPermissionGranted: ");
-        absFilesArray=new FilesArray();
-        adapter=new FilesArrayAdapter(this,R.layout.files_list_item,absFilesArray);
-        listView.setAdapter(adapter);
 
         File rootPath=Environment.getExternalStorageDirectory();
         if (isReadable(rootPath))
@@ -107,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             }
         };
 
+        backStack.add(folder.getPath());
         filesGetter.execute(folder);
 
     }
@@ -115,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     protected void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: ");
         super.onSaveInstanceState(outState);
+        //save the backstack
+        String[] sArray=new String[backStack.size()];
+        outState.putStringArray(KEY_BACKSTACK, backStack.toArray(sArray));
     }
 
     private static boolean isReadable(File file){
@@ -124,5 +166,18 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     private static boolean isWrite(){
         return EnvironmentCompat.getStorageState(Environment.getExternalStorageDirectory()).equals(Environment.MEDIA_MOUNTED);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: at "+backStack.pop());
+        //if in root dir exit. else go back one folder
+        if (backStack.empty())
+            super.onBackPressed();
+        else
+        {
+            Log.d(TAG, "onBackPressed: "+backStack.peek());
+            populateFilesList(new File(backStack.pop()));
+        }
     }
 }
