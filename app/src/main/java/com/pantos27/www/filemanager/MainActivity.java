@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     private static final String TAG = FileManagerApplication.TAG+"MainAct";
     private static final String KEY_BACKSTACK = "backstack key";
+    public static final String KEY_FILEINFO = "file info key";
     ListView listView;
     FilesArrayAdapter adapter;
     private FilesArray absFilesArray;
@@ -97,8 +98,11 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 // TODO: 27/02/2016 show info
-                Intent intent=new Intent();
-                return false;
+                Log.d(TAG, "onItemLongClick: ");
+                Intent intent=new Intent(MainActivity.this,FileInfoActivity.class);
+                intent.putExtra(KEY_FILEINFO,adapter.getItem(position).file.getPath());
+                startActivity(intent);
+                return true;
             }
         });
 

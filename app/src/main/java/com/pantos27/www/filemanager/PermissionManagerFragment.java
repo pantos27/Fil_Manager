@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * helper fragment to handel permission requests
@@ -35,6 +36,7 @@ public class PermissionManagerFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        // TODO: 28/02/2016 init request code
     }
 
     @Override
@@ -69,8 +71,9 @@ public class PermissionManagerFragment extends Fragment{
         if (toRequest.size()>0)
         {
             //missing permissions
-            Log.d(TAG, "checkPermissions: request permissions "+toRequest.toString());
-            requestPermissions((String[]) toRequest.toArray(),this.getArguments().hashCode());
+            Log.d(TAG, "checkPermissions: request permissions " + toRequest.toString());
+            String[] arr=new String[toRequest.size()];
+            requestPermissions(toRequest.toArray(arr),1);
         }
         else
         {
@@ -84,7 +87,7 @@ public class PermissionManagerFragment extends Fragment{
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        if (requestCode==getArguments().hashCode()){
+        if (requestCode==1){
             for (int result : grantResults) {
                 if (result==PackageManager.PERMISSION_DENIED)
                 {

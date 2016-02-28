@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">File Manager</string>
+    <string name="size">Size:</string>
+    <string name="modified">Last Modified</string>
+    <string name="number_of_items">Number of items:</string>
 </resources>
