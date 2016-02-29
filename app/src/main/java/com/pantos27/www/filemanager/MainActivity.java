@@ -1,7 +1,9 @@
 package com.pantos27.www.filemanager;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AlertDialog;
@@ -80,28 +82,10 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                 }
                 else
                 {
-                    Toast.makeText(MainActivity.this, "open file "+file.getName(), Toast.LENGTH_SHORT).show();
-                    // TODO: 27/02/2016 open file
-//                    MimeTypeMap myMime = MimeTypeMap.getSingleton();
-//                    Intent newIntent = new Intent(Intent.ACTION_VIEW);
-//                    String mimeType = myMime.getMimeTypeFromExtension(fileExt(getFile()).substring(1));
-//                    newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
-//                    newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    try {
-//                        context.startActivity(newIntent);
-//                    } catch (ActivityNotFoundException e) {
-//                        Toast.makeText(context, "No handler for this type of file.", Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    File file = new File("EXAMPLE.JPG");
-//
-//// Just example, you should parse file name for extension
-//                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(".JPG");
-//
-//                    Intent intent = new Intent();
-//                    intent.setAction(android.content.Intent.ACTION_VIEW);
-//                    intent.setDataAndType(Uri.fromFile(file), mime);
-//                    startActivityForResult(intent, 10);
+                    Log.d(TAG, "onItemClick: opening file: "+file.getName());
+//                    Toast.makeText(MainActivity.this, "open file "+file.getName(), Toast.LENGTH_SHORT).show();
+                    if(!openFile(file))
+                        Toast.makeText(MainActivity.this, "No app was found for this type of file.", Toast.LENGTH_LONG).show();
 
 
                 }
@@ -121,6 +105,24 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         });
 
         Log.d(TAG, "onCreate: end");
+    }
+
+    private boolean openFile(File file) {
+        String[] arr=file.getName().split("\\.");
+        if (arr.length<1) return false;
+
+        MimeTypeMap mMime = MimeTypeMap.getSingleton();
+        String mimeType= mMime.getMimeTypeFromExtension(arr[arr.length - 1]);
+        Log.d(TAG, "onItemClick: mime type: " + mimeType);
+        Intent newIntent = new Intent(Intent.ACTION_VIEW);
+        newIntent.setDataAndType(Uri.fromFile(file),mimeType);
+        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            MainActivity.this.startActivity(newIntent);
+        } catch (ActivityNotFoundException e) {
+            return false;
+        }
+        return true;
     }
 
     private PermissionManagerFragment addFragment() {
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        Log.d(TAG, "onResume: backstack="+backStack.size());
         //if back from state change, resume @ last folder
         if (!backStack.empty())
             populateFilesList(new File(backStack.pop()));
