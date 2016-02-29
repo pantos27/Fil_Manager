@@ -32,7 +32,7 @@ public class FilesArrayAdapter extends ArrayAdapter<AbsFile> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView==null){
-            Log.d(TAG, "getView: create line");
+//            Log.d(TAG, "getView: create line");
             convertView= LayoutInflater.from(getContext()).inflate(R.layout.files_list_item,null);
             //hold the views
             ViewHolder vh=new ViewHolder();

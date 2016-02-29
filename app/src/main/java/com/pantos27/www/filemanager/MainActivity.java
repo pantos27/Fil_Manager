@@ -8,10 +8,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.Toast;
 
 import java.io.File;
@@ -24,12 +30,17 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     private static final String TAG = FileManagerApplication.TAG+"MainAct";
     private static final String KEY_BACKSTACK = "backstack key";
     public static final String KEY_FILEINFO = "file info key";
+    private static final String KEY_ROOTPATH = "root path key";
     ListView listView;
     FilesArrayAdapter adapter;
     private FilesArray absFilesArray;
     private String permissionFragmentTag="";
     Stack<String> backStack;
     PermissionManagerFragment writePermissionFragment;
+    String rootPath ="";
+    LinearLayout pathLayout;
+    private HorizontalScrollView scrollView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             String[] sArray=savedInstanceState.getStringArray(KEY_BACKSTACK);
             backStack=new Stack<String>();
             Collections.addAll(backStack, sArray);
+            rootPath=savedInstanceState.getString(KEY_ROOTPATH);
         }
         else
         {
@@ -56,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         adapter=new FilesArrayAdapter(this,R.layout.files_list_item,absFilesArray);
         listView.setAdapter(adapter);
 
+        pathLayout=(LinearLayout) findViewById(R.id.pathView);
+        scrollView=(HorizontalScrollView) findViewById(R.id.scrollView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -142,9 +156,11 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     public void onPermissionGranted() {
         Log.d(TAG, "onPermissionGranted: ");
 
-        File rootPath=Environment.getExternalStorageDirectory();
-        if (isReadable(rootPath))
-            populateFilesList(rootPath);
+        File rootFolder=Environment.getExternalStorageDirectory();
+        rootPath=rootFolder.getPath();
+
+        if (isReadable(rootFolder))
+            populateFilesList(rootFolder);
         else{
             Toast.makeText(MainActivity.this, "Storage un available", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "onPermissionGranted: storage unavailable");
@@ -161,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     void populateFilesList(File folder){
         Log.d(TAG, "populateFilesList: "+folder.getPath());
+        populatePathTrace(folder.getPath());
+
         FilesGetter filesGetter=new FilesGetter(){
             @Override
             protected void onPostExecute(FilesArray absFiles) {
@@ -184,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         //save the backstack
         String[] sArray=new String[backStack.size()];
         outState.putStringArray(KEY_BACKSTACK, backStack.toArray(sArray));
+        outState.putString(KEY_ROOTPATH,rootPath);
     }
 
     private static boolean isReadable(File file){
@@ -206,5 +225,51 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             Log.d(TAG, "onBackPressed: "+backStack.peek());
             populateFilesList(new File(backStack.pop()));
         }
+    }
+
+    public void onPathButtonClick(View view){
+
+        if (view.getId()==R.id.rootButton){
+            //go home
+            backStack.clear();
+            populateFilesList(new File(rootPath));
+        }
+        else
+        {
+            //// TODO: 29/02/2016 handle click
+        }
+
+    }
+
+    void populatePathTrace(String path){
+
+        String relativePath=path.substring(rootPath.length());
+
+        Log.d(TAG, "populatePathTrace relative path:" + relativePath);
+
+        String[] folders=relativePath.split("/", 0);
+        Log.d(TAG, "populatePathTrace: folders number " + folders.length);
+        pathLayout.removeAllViews();
+        StringBuilder builder=new StringBuilder();
+        for (String folder : folders) {
+            Log.d(TAG, "populatePathTrace: folder " + folder);
+            if(folder.isEmpty())continue;
+
+            Button button= (Button) getLayoutInflater().inflate(R.layout.path_button, pathLayout, false);
+            button.setText(folder);
+            builder.append("/" + folder);
+            button.setTag(rootPath + builder);
+            pathLayout.addView(button);
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onPath Click: " + v.getTag().toString());
+                    populateFilesList(new File(v.getTag().toString()));
+                }
+            });
+            scrollView.fullScroll(View.FOCUS_RIGHT);
+        }
+
     }
 }
