@@ -3,7 +3,7 @@ package com.pantos27.www.filemanager;
 import java.io.File;
 
 /**
- * Created by Veierovioum on 22/02/2016.
+ * represents a folder with files in the display array
  */
 public class FullFolder extends AbsFile {
 

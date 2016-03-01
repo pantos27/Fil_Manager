@@ -4,7 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 /**
- * Created by Veierovioum on 27/02/2016.
+ * app class, mainly for the TAG reference
  */
 public class FileManagerApplication extends Application {
     public static final String TAG="FileManager-";
@@ -13,6 +13,6 @@ public class FileManagerApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Log.d(TAG, "onCreate: ");
+        Log.d(TAG+"App init", "onCreate: ");
     }
 }

@@ -9,6 +9,9 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.Date;
 
+/***
+ * displays info on a selected file or folder
+ */
 public class FileInfoActivity extends AppCompatActivity {
 
     @Override

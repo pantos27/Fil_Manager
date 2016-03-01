@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import java.io.File;
 
 /**
- * Created by Veierovioum on 22/02/2016.
+ * abstract class for item types in the display array
  */
 public abstract class AbsFile {
 

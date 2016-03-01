@@ -6,11 +6,12 @@ import java.io.File;
 import java.net.URI;
 
 /**
- * Created by Veierovioum on 27/02/2016.
+ * extends asynctask, fetches the files and folder within a given Fle instance
  */
 public class FilesGetter extends AsyncTask<File,Void,FilesArray> {
     @Override
     protected FilesArray doInBackground(File... params) {
+
         File[] files=params[0].listFiles();
         FilesArray filesArray=new FilesArray();
 

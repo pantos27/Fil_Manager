@@ -11,6 +11,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 /**
  * helper fragment to handel permission requests
@@ -23,7 +24,13 @@ public class PermissionManagerFragment extends Fragment{
     public static final String KEY_PERMISSIONS = "permissions-key";
     private String[] permissions;
 
+    /***
+     * callback object for handling permission granted/denied events
+     */
     public interface PermissionCallback {
+        /***
+         *
+         */
         void onPermissionGranted();
         void onPermissionDenied();
     }
@@ -31,12 +38,12 @@ public class PermissionManagerFragment extends Fragment{
     PermissionCallback callback;
     //default false
     private static boolean permissionDenied;
+    private final int fRequestCode =new Random().nextInt(127);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        // TODO: 28/02/2016 init request code
     }
 
     @Override
@@ -73,12 +80,14 @@ public class PermissionManagerFragment extends Fragment{
             //missing permissions
             Log.d(TAG, "checkPermissions: request permissions " + toRequest.toString());
             String[] arr=new String[toRequest.size()];
-            requestPermissions(toRequest.toArray(arr),1);
+            requestPermissions(toRequest.toArray(arr),fRequestCode);
         }
         else
         {
             //all good
-            callback.onPermissionGranted();
+            if (callback != null) {
+                callback.onPermissionGranted();
+            }
         }
 
 
@@ -87,15 +96,19 @@ public class PermissionManagerFragment extends Fragment{
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        if (requestCode==1){
+        if (requestCode==fRequestCode){
             for (int result : grantResults) {
                 if (result==PackageManager.PERMISSION_DENIED)
                 {
-                    callback.onPermissionDenied();
+                    if (callback != null) {
+                        callback.onPermissionDenied();
+                    }
                     return;
                 }
             }
-            callback.onPermissionGranted();
+            if (callback != null) {
+                callback.onPermissionGranted();
+            }
         }
         else
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);

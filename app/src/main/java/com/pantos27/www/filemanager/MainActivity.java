@@ -10,7 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
@@ -18,10 +17,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.Space;
 import android.widget.Toast;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.Stack;
@@ -33,34 +29,31 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     private static final String KEY_BACKSTACK = "backstack key";
     public static final String KEY_FILEINFO = "file info key";
     private static final String KEY_ROOTPATH = "root path key";
+
     ListView listView;
     FilesArrayAdapter adapter;
     private FilesArray absFilesArray;
     private String permissionFragmentTag="";
-    Stack<String> backStack;
     PermissionManagerFragment writePermissionFragment;
     String rootPath ="";
     LinearLayout pathLayout;
     private HorizontalScrollView scrollView;
+    /***
+     * string stack to contain the user's navigation moves
+     */
+    Stack<String> backStack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState != null) {
-            String[] sArray=savedInstanceState.getStringArray(KEY_BACKSTACK);
-            backStack=new Stack<String>();
-            Collections.addAll(backStack, sArray);
-            rootPath=savedInstanceState.getString(KEY_ROOTPATH);
-        }
-        else
-        {
+        if (savedInstanceState==null)
             backStack=new Stack<>();
-        }
-
+        //checks if there's alread an instance of permission fragment attached
         writePermissionFragment= (PermissionManagerFragment) getSupportFragmentManager().findFragmentByTag(permissionFragmentTag);
         if (writePermissionFragment==null) {
+            //if not, create & attach one
             Log.d(TAG, "onCreate: new permission fragment");
             writePermissionFragment=addFragment();
         }
@@ -73,18 +66,20 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         pathLayout=(LinearLayout) findViewById(R.id.pathView);
         scrollView=(HorizontalScrollView) findViewById(R.id.scrollView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /***
+             * sets a click event for the items in the main files/folders display list
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                File file=adapter.getItem(position).file;
+                File file = adapter.getItem(position).file;
 
-                if (file.isDirectory()){
+                if (file.isDirectory()) {
+                    //if directory, step inside
                     populateFilesList(file);
-                }
-                else
-                {
-                    Log.d(TAG, "onItemClick: opening file: "+file.getName());
-//                    Toast.makeText(MainActivity.this, "open file "+file.getName(), Toast.LENGTH_SHORT).show();
-                    if(!openFile(file))
+                } else {
+                    Log.d(TAG, "onItemClick: opening file: " + file.getName());
+                    //if it's a file, try to open
+                    if (!openFile(file))
                         Toast.makeText(MainActivity.this, "No app was found for this type of file.", Toast.LENGTH_LONG).show();
 
 
@@ -95,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO: 27/02/2016 show info
                 Log.d(TAG, "onItemLongClick: ");
+                //start file info activity on long press
                 Intent intent=new Intent(MainActivity.this,FileInfoActivity.class);
                 intent.putExtra(KEY_FILEINFO,adapter.getItem(position).file.getPath());
                 startActivity(intent);
@@ -104,18 +99,22 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             }
         });
 
-        Log.d(TAG, "onCreate: end");
     }
 
+    /***
+     * try to open a file by sending it to the relevant app
+     * @param file
+     * @return success/failure
+     */
     private boolean openFile(File file) {
         String[] arr=file.getName().split("\\.");
         if (arr.length<1) return false;
-
+        //get file type
         MimeTypeMap mMime = MimeTypeMap.getSingleton();
         String mimeType= mMime.getMimeTypeFromExtension(arr[arr.length - 1]);
         Log.d(TAG, "onItemClick: mime type: " + mimeType);
         Intent newIntent = new Intent(Intent.ACTION_VIEW);
-        newIntent.setDataAndType(Uri.fromFile(file),mimeType);
+        newIntent.setDataAndType(Uri.fromFile(file), mimeType);
         newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             MainActivity.this.startActivity(newIntent);
@@ -125,6 +124,10 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         return true;
     }
 
+    /***
+     *
+     * @return the new fragment
+     */
     private PermissionManagerFragment addFragment() {
         PermissionManagerFragment fragment = new PermissionManagerFragment();
         Bundle bundle = new Bundle();
@@ -135,13 +138,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         return fragment;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart: ");
-
-
-    }
 
     @Override
     protected void onResume() {
@@ -151,7 +147,19 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         if (!backStack.empty())
             populateFilesList(new File(backStack.pop()));
         else
+        //if new instance request permission
         writePermissionFragment.checkPermissions();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(TAG, "onRestoreInstanceState: ");
+        //restore saved items
+        String[] sArray=savedInstanceState.getStringArray(KEY_BACKSTACK);
+        backStack=new Stack<String>();
+        Collections.addAll(backStack, sArray);
+        rootPath=savedInstanceState.getString(KEY_ROOTPATH);
     }
 
     @Override
@@ -173,14 +181,15 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     @Override
     public void onPermissionDenied() {
         Log.d(TAG, "onPermissionDenied: ");
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        // TODO: 27/02/2016 add alert
+        //show alert message
+        Toast.makeText(MainActivity.this, R.string.permission_denied_msg, Toast.LENGTH_LONG).show();
     }
 
     void populateFilesList(File folder){
         Log.d(TAG, "populateFilesList: "+folder.getPath());
+        //update path display
         populatePathTrace(folder.getPath());
-
+        //send for file search async
         FilesGetter filesGetter=new FilesGetter(){
             @Override
             protected void onPostExecute(FilesArray absFiles) {
@@ -191,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                 adapter.notifyDataSetChanged();
             }
         };
-
+        //update backstack
         backStack.add(folder.getPath());
         filesGetter.execute(folder);
 
@@ -218,7 +227,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     @Override
     public void onBackPressed() {
-        Log.d(TAG, "onBackPressed: at "+backStack.pop());
+        if (!backStack.isEmpty())
+            Log.d(TAG, "onBackPressed: at "+backStack.pop());
         //if in root dir exit. else go back one folder
         if (backStack.empty())
             super.onBackPressed();
@@ -229,30 +239,29 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         }
     }
 
-    public void onPathButtonClick(View view){
-
-        if (view.getId()==R.id.rootButton){
-            //go home
-            backStack.clear();
-            populateFilesList(new File(rootPath));
-        }
-        else
-        {
-            //// TODO: 29/02/2016 handle click
-        }
+    public void onHomeButtonClick(View view){
+        //go home
+        backStack.clear();
+        populateFilesList(new File(rootPath));
 
     }
 
+    /***
+     * handel the update of the path buttons display on the top of the screen
+     * @param path
+     */
     void populatePathTrace(String path){
-
+        //get realtive path of the current position
         String relativePath=path.substring(rootPath.length());
 
         Log.d(TAG, "populatePathTrace relative path:" + relativePath);
-
+        //split by sub folders
         String[] folders=relativePath.split("/", 0);
         Log.d(TAG, "populatePathTrace: folders number " + folders.length);
+        //reset path display
         pathLayout.removeAllViews();
         StringBuilder builder=new StringBuilder();
+        //iterate through folders and add buttons
         for (String folder : folders) {
             Log.d(TAG, "populatePathTrace: folder " + folder);
             if(folder.isEmpty())continue;
@@ -260,6 +269,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             Button button= (Button) getLayoutInflater().inflate(R.layout.path_button, pathLayout, false);
             button.setText(folder);
             builder.append("/" + folder);
+            //save the target path in the button
             button.setTag(rootPath + builder);
             pathLayout.addView(button);
 
@@ -270,6 +280,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                     populateFilesList(new File(v.getTag().toString()));
                 }
             });
+            //scroll to the last folder button
+            // not working so great, any ideas why?
             scrollView.fullScroll(View.FOCUS_RIGHT);
         }
 

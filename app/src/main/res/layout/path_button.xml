@@ -4,9 +4,7 @@
     android:layout_height="wrap_content"
     android:text="path"
     android:textSize="10sp"
-    android:textColor="#FFFFFF"
-
-    android:background="@drawable/buttonshape"
+    android:textColor="#000"
         >
 
 </Button>

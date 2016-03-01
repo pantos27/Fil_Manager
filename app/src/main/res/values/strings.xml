@@ -3,4 +3,6 @@
     <string name="size">Size:</string>
     <string name="modified">Last Modified</string>
     <string name="number_of_items">Number of items:</string>
+    <string name="permission_denied_msg">Please allow data permission for this app to work</string>
+    <string name="permission_denied_title">Permission Denied</string>
 </resources>

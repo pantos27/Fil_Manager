@@ -14,7 +14,7 @@ import android.widget.Toast;
 import java.util.List;
 
 /**
- * Created by Veierovioum on 26/02/2016.
+ * custom array adapter
  */
 public class FilesArrayAdapter extends ArrayAdapter<AbsFile> {
 
@@ -29,15 +29,22 @@ public class FilesArrayAdapter extends ArrayAdapter<AbsFile> {
 
     }
 
+    /***
+     * creates the list row based on the type of instance in FilesArray
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView==null){
-//            Log.d(TAG, "getView: create line");
             convertView= LayoutInflater.from(getContext()).inflate(R.layout.files_list_item,null);
             //hold the views
             ViewHolder vh=new ViewHolder();
             vh.fileIcon= (ImageView) convertView.findViewById(R.id.fileIcon);
             vh.txtFileName= (TextView) convertView.findViewById(R.id.txtFileName);
+            //saves the view reference holders
             convertView.setTag(vh);
 
 
@@ -50,7 +57,9 @@ public class FilesArrayAdapter extends ArrayAdapter<AbsFile> {
         return convertView;
     }
 
-
+    /***
+     * inner class to hold view references
+     */
     private class ViewHolder{
         TextView txtFileName;
         ImageView fileIcon;
